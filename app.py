@@ -46,7 +46,7 @@ def main():
             file_name,
             re.sub(r".*?\.(\w+$)", "\\1", file.name),
         )
-        return jsonify({"message": "No file processed. File is not a PDF"}), 204
+        return jsonify({"message": "No file processed. File is not a PDF"}), 200
 
     image_paths = download_and_extract_images(
         bucket_name, file_name, OUTPUT_BUCKET_NAME
@@ -85,7 +85,7 @@ def main():
     jsonl_text += json_line + "\n"
     jsonl_file.upload_from_string(jsonl_text, content_type="application/json")
 
-    return jsonify({"documents": doc_data}), 201
+    return jsonify({"documents": doc_data}), 200
 
 
 def embed_text(
