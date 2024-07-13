@@ -7,7 +7,8 @@ locals {
     "roles/discoveryengine.editor",
     "roles/run.invoker",
     "roles/aiplatform.user",
-    "roles/iam.serviceAccountTokenCreator"
+    "roles/iam.serviceAccountTokenCreator",
+    "roles/logging.logWriter"
   ]
   roles_for_builder = [
     "roles/run.admin",
@@ -121,6 +122,8 @@ resource "google_cloud_run_v2_service" "default" {
       client,
       client_version,
       template[0].containers[0].image,
+      template[0].containers[0].name,
+      template[0].containers[0].resources,
       template[0].labels["commit-sha"],
       template[0].labels["managed-by"]
     ]
