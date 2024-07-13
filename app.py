@@ -1,3 +1,4 @@
+import hashlib
 import json
 import logging
 from os import getenv
@@ -48,6 +49,19 @@ def main():
         )
         return jsonify({"message": "No file processed. File is not a PDF"}), 200
 
+    hasher = hashlib.sha256()
+
+    hasher.update(file.download_as_bytes())
+    file_hash = hasher.hexdigest()
+
+    jsonl_file = storage_client.bucket(OUTPUT_BUCKET_NAME).blob("documents.jsonl")
+    jsonl_text = ""
+    if jsonl_file.exists():
+        jsonl_text = jsonl_file.download_as_text()
+
+    if file_hash in jsonl_text:
+        return jsonify({"message": "File already processed"}), 200
+
     image_paths = download_and_extract_images(
         bucket_name, file_name, OUTPUT_BUCKET_NAME
     )
@@ -65,6 +79,7 @@ def main():
         return jsonify({"error": "LLM generated invalid JSON format"}), 500
 
     struct_data = json.loads(json_data)
+    struct_data["file_hash"] = file_hash
 
     doc_data = {
         "id": str(uuid()),
@@ -76,11 +91,6 @@ def main():
     }
 
     json_line = json.dumps(doc_data, ensure_ascii=False)
-
-    jsonl_file = storage_client.bucket(OUTPUT_BUCKET_NAME).blob("documents.jsonl")
-    jsonl_text = ""
-    if jsonl_file.exists():
-        jsonl_text = jsonl_file.download_as_text()
 
     jsonl_text += json_line + "\n"
     jsonl_file.upload_from_string(jsonl_text, content_type="application/json")
