@@ -12,6 +12,9 @@ spec:
       serviceAccountName: ${SERVICE_ACCOUNT_EMAIL}
       containers:
         - image: ${IMAGE}
+          env:
+            - name: OUTPUT_BUCKET_NAME
+              value: ${OUTPUT_BUCKET_NAME}
   traffic:
     - percent: 100
       latestRevision: true

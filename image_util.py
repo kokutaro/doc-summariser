@@ -42,7 +42,7 @@ def _export_images(extracted_images: list[dict], image_path: str):
             yield image_output_path
 
 
-def download_and_extract_images(bucket_name: str, file: str):
+def download_and_extract_images(bucket_name: str, file: str, output_bucket_name: str):
     work_dir = "/tmp/work/"
     image_path = os.path.join(work_dir, file.split(".")[0])
     os.makedirs(image_path, exist_ok=True)
@@ -59,17 +59,17 @@ def download_and_extract_images(bucket_name: str, file: str):
     output_uris = []
 
     for image_path in image_paths:
-        bucket = storage_client.bucket(bucket_name)
+        bucket = storage_client.bucket(output_bucket_name)
         blob_name = image_path.replace(work_dir, "")
         blob = bucket.blob(blob_name)
         blob.upload_from_filename(image_path)
         logging.info(
             "Uploaded %s to: gs://%s/%s",
             image_path,
-            bucket_name,
+            output_bucket_name,
             blob_name,
         )
-        output_uris.append(f"gs://{bucket_name}/{blob_name}")
+        output_uris.append(f"gs://{output_bucket_name}/{blob_name}")
 
     # Clean up working dir
     shutil.rmtree(work_dir)

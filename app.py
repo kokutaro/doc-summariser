@@ -1,4 +1,6 @@
 import json
+import logging
+from os import getenv
 import re
 import google.cloud.logging
 from flask import Flask, request, jsonify
@@ -7,6 +9,13 @@ from vertexai.language_models import TextEmbeddingInput, TextEmbeddingModel
 from doc_summariser import summarise_doc
 from image_util import download_and_extract_images
 from json_util import check_json_format
+from uuid import uuid4 as uuid
+
+
+OUTPUT_BUCKET_NAME = getenv("OUTPUT_BUCKET_NAME")
+
+if OUTPUT_BUCKET_NAME is None:
+    raise ValueError("OUTPUT_BUCKET_NAME must be set")
 
 app = Flask(__name__)
 app.json.ensure_ascii = False
@@ -18,7 +27,7 @@ client.setup_logging()
 def main():
     data = request.get_json()
     if not isinstance(data, dict):
-        return jsonify({"error": "Invalid request body"}), 400
+        return jsonify({"error": "Invalid request body"}), 415
 
     bucket_name = data.get("bucket")
     file_name = data.get("name")
@@ -30,11 +39,13 @@ def main():
     bucket = storage_client.bucket(bucket_name)
     file = bucket.blob(file_name)
     if not file.exists():
-        return jsonify({"error": "File not found in bucket"}), 400
+        return jsonify({"error": "File not found in bucket"}), 404
     if file.content_type != "application/pdf":
-        return jsonify({"message": "File is not a PDF"}), 201
+        return jsonify({"message": "No file processed. File is not a PDF"}), 204
 
-    image_paths = download_and_extract_images(bucket_name, file_name)
+    image_paths = download_and_extract_images(
+        bucket_name, file_name, OUTPUT_BUCKET_NAME
+    )
 
     summarised = summarise_doc(
         pdf_path=f"gs://{bucket_name}/{file_name}",
@@ -45,9 +56,31 @@ def main():
     json_data = re.sub("```", "", json_data)
 
     if not check_json_format(json_data):
+        logging.warn("LLM generated invalid JSON format.\n%s", json_data)
         return jsonify({"error": "LLM generated invalid JSON format"}), 500
 
-    return jsonify({"documents": json.loads(json_data)}), 200
+    struct_data = json.loads(json_data)
+
+    doc_data = {
+        "id": str(uuid()),
+        "content": {
+            "mimeType": "application/pdf",
+            "uri": f"gs://{bucket_name}/{file_name}",
+        },
+        "structData": struct_data,
+    }
+
+    json_line = json.dumps(doc_data, ensure_ascii=False)
+
+    jsonl_file = storage_client.bucket(OUTPUT_BUCKET_NAME).blob("documents.jsonl")
+    jsonl_text = ""
+    if jsonl_file.exists():
+        jsonl_text = jsonl_file.download_as_text()
+
+    jsonl_text += json_line + "\n"
+    jsonl_file.upload_from_string(jsonl_text, content_type="application/json")
+
+    return jsonify({"documents": doc_data}), 201
 
 
 def embed_text(

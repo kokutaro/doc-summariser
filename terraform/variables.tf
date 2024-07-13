@@ -27,3 +27,8 @@ variable "upload_bucket_name" {
   description = "Bucket name to upload file"
   type        = string
 }
+
+variable "output_bucket_name" {
+  description = "Bucket name to output the result"
+  type        = string
+}
