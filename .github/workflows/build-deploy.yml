@@ -22,7 +22,7 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}
+          images: ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.SERVICE }}/${{ vars.SERVICE }}
           tags: |
             type=semver,pattern={{raw}}
             type=sha,format=short
@@ -43,7 +43,7 @@ jobs:
         with:
           username: 'oauth2accesstoken'
           password: '${{ steps.auth.outputs.access_token }}'
-          registry: '${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}'
+          registry: '${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.SERVICE }}'
       - name: Build, tag and push container
         id: build-image
         uses: docker/build-push-action@v6
@@ -57,16 +57,16 @@ jobs:
       - name: Create service decleration
         run: |-
           export IMAGE="${{ steps.metadata.outputs.tags }}"
-          export SERVICE="${{ env.SERVICE }}"
-          export PROJECT_ID="${{ env.PROJECT_ID }}"
-          export SERVICE_ACCOUNT_EMAIL="${{ env.SERVICE }}@${{ env.PROJECT_ID }}.iam.gserviceaccount.com"
+          export SERVICE="${{ vars.SERVICE }}"
+          export PROJECT_ID="${{ vars.PROJECT_ID }}"
+          export SERVICE_ACCOUNT_EMAIL="${{ vars.SERVICE }}@${{ vars.PROJECT_ID }}.iam.gserviceaccount.com"
           envsubst < ./service.template.yaml > service.yaml
       - name: 'Deploy to Cloud Run'
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: ${{ env.SERVICE }}
-          region: ${{ env.REGION }}
+          service: ${{ vars.SERVICE }}
+          region: ${{ vars.REGION }}
           metadata: service.yaml
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
