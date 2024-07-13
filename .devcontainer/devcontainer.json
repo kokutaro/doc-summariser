@@ -37,7 +37,8 @@
         "github.vscode-github-actions",
         "redhat.vscode-yaml",
         "googlecloudtools.cloudcode",
-        "ms-toolsai.jupyter"
+        "ms-toolsai.jupyter",
+        "esbenp.prettier-vscode"
       ],
       "settings": {
         "[terraform]": {
