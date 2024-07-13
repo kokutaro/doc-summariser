@@ -40,11 +40,11 @@ def main():
     file = bucket.blob(file_name)
     if not file.exists():
         return jsonify({"error": "File not found in bucket"}), 404
-    if re.match(r"\.pdf$", file.name) is None:
+    if re.match(r".*?\.pdf$", file.name) is None:
         logging.info(
             "Content type of file of %s is %s.",
             file_name,
-            re.sub(r"\.(\w+$)", "\\1", file.name),
+            re.sub(r".*?\.(\w+$)", "\\1", file.name),
         )
         return jsonify({"message": "No file processed. File is not a PDF"}), 204
 
