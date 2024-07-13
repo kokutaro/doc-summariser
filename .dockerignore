@@ -1,0 +1,4 @@
+terraform/
+.github/
+.devcontainer/
+__pycache__/

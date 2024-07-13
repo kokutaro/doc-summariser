@@ -1,0 +1,25 @@
+services:
+  doc_embedding:
+    container_name: doc_embedding
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: dev
+      args:
+        - USERNAME=user
+        - GROUPNAME=user
+    ports:
+      - 8090:8080
+    volumes:
+      - type: bind
+        source: ..
+        target: /workspace
+      - type: volume
+        source: gcloud_config_volume
+        target: /home/user/.config/gcloud
+
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
+volumes:
+  gcloud_config_volume:
+    driver: local

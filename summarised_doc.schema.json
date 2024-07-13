@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "content": {
+      "type": "string",
+      "description": "The content of the document."
+    },
+    "images": {
+      "type": "array",
+      "description": "List of images associated with the document.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "img_uri": {
+            "type": "string",
+            "description": "URI of the image."
+          },
+          "img_description": {
+            "type": "string",
+            "description": "Description of the image."
+          }
+        },
+        "required": [
+          "img_uri",
+          "img_description"
+        ]
+      }
+    }
+  },
+  "required": [
+    "content",
+    "images"
+  ]
+}
