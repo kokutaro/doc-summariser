@@ -59,7 +59,7 @@ jobs:
           export IMAGE="${{ steps.metadata.outputs.tags }}"
           export SERVICE="${{ vars.SERVICE }}"
           export PROJECT_ID="${{ vars.PROJECT_ID }}"
-          export SERVICE_ACCOUNT_EMAIL="${{ vars.SERVICE }}@${{ vars.PROJECT_ID }}.iam.gserviceaccount.com"
+          export SERVICE_ACCOUNT_EMAIL="sa-${{ vars.SERVICE }}@${{ vars.PROJECT_ID }}.iam.gserviceaccount.com"
           envsubst < ./service.template.yaml > service.yaml
       - name: 'Deploy to Cloud Run'
         id: deploy
