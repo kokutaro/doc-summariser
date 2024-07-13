@@ -31,6 +31,8 @@ def main():
     file = bucket.blob(file_name)
     if not file.exists():
         return jsonify({"error": "File not found in bucket"}), 400
+    if file.content_type != "application/pdf":
+        return jsonify({"message": "File is not a PDF"}), 201
 
     image_paths = download_and_extract_images(bucket_name, file_name)
 
