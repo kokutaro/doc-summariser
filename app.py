@@ -21,7 +21,7 @@ def main():
         return jsonify({"error": "Invalid request body"}), 400
 
     bucket_name = data.get("bucket")
-    file_name = data.get("file")
+    file_name = data.get("name")
 
     if not bucket_name or not file_name:
         return jsonify({"error": "Missing bucket or file in request body"}), 400
