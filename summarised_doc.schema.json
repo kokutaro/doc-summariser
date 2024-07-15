@@ -7,22 +7,38 @@
       "description": "The content of the document."
     },
     "author": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "The author of this document"
     },
     "revision": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "The revision of this document"
     },
     "createdOn": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "format": "date-time",
       "description": "Date of this document created"
     },
     "lastModifiedOn": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "format": "date-time",
       "description": "Date of this document last modified"
+    },
+    "title": {
+      "type": "string",
+      "description": "The title of this document"
     },
     "images": {
       "type": "array",
@@ -48,6 +64,7 @@
   },
   "required": [
     "content",
-    "images"
+    "images",
+    "title"
   ]
 }

@@ -93,7 +93,7 @@ def main():
     json_data = re.sub("```", "", json_data)
 
     if not check_json_format(json_data):
-        logger.warn("LLM generated invalid JSON format.\n%s", json_data)
+        logger.warning("LLM generated invalid JSON format.\n%s", json_data)
         return jsonify({"error": "LLM generated invalid JSON format"}), 500
 
     struct_data = json.loads(json_data)
