@@ -4,6 +4,15 @@ import vertexai.generative_models
 
 
 def generate_answer(question: str, context: list[dict]) -> str:
+    """Generates an answer to a question based on a given context.
+
+    Args:
+        question (str): The question to be answered.
+        context (list[dict]): A list of dictionaries containing context information.
+
+    Returns:
+        str: The generated answer.
+    """
     context_json = json.dumps(context, ensure_ascii=False, indent=2)
     vertexai.init()
     model = vertexai.generative_models.GenerativeModel(

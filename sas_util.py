@@ -6,6 +6,14 @@ import google.auth
 
 
 def generate_signed_url(gs_uri: str):
+    """Generates a signed URL for a Google Cloud Storage URI.
+
+    Args:
+        gs_uri (str): The Google Cloud Storage URI.
+
+    Returns:
+        str: The signed URL.
+    """
     bucket_name = gs_uri.split("//")[1].split("/")[0]
     blob_name = gs_uri.split("//")[1].split("/", 1)[1]
 

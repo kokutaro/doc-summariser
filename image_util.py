@@ -16,6 +16,14 @@ def _calculate_sha256_hash(file):
 
 
 def _extract_images(pdf_path):
+    """Extracts images from a PDF file.
+
+    Args:
+        pdf_path (str): The path to the PDF file.
+
+    Returns:
+        list[dict]: A list of dictionaries containing image data.
+    """
     doc = fitz.open(pdf_path)
     images = []
     for page in doc:
@@ -27,9 +35,20 @@ def _extract_images(pdf_path):
 
 
 def _export_images(extracted_images: list[dict], image_path: str):
+    """Exports images from a list of extracted images to a specified directory.
+
+    Args:
+        extracted_images (list[dict]): A list of dictionaries containing image data.
+        image_path (str): The path to the directory to export the images to.
+
+    Yields:
+        str: The path to the exported image file.
+    """
     image_hashes = []
     for image in extracted_images:
         image_data = image["image"]
+
+        # Check if the image hash already exists in the list
         file_hash = _calculate_sha256_hash(image_data)
         if file_hash in image_hashes:
             continue
@@ -43,6 +62,16 @@ def _export_images(extracted_images: list[dict], image_path: str):
 
 
 def download_and_extract_images(bucket_name: str, file: str, output_bucket_name: str):
+    """Downloads a PDF file from a Google Cloud Storage bucket, extracts images from the PDF, and uploads the images to a different Google Cloud Storage bucket.
+
+    Args:
+        bucket_name (str): The name of the bucket containing the PDF file.
+        file (str): The name of the PDF file.
+        output_bucket_name (str): The name of the bucket to upload the extracted images to.
+
+    Returns:
+        list[str]: A list of Google Cloud Storage URIs for the uploaded images.
+    """
     work_dir = "/tmp/work/"
     image_path = os.path.join(work_dir, file.split(".")[0])
     os.makedirs(image_path, exist_ok=True)

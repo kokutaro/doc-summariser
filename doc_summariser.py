@@ -9,6 +9,16 @@ PRICE_PER_OUTPUT_MTOKEN = os.environ.get("PRICE_PER_INPUT_MTOKEN", 1.05)
 
 
 def summarise_doc(pdf_path: str, img_paths: list[str]) -> str:
+    """Summarises a PDF document and its associated images.
+
+    Args:
+        pdf_path (str): The path to the PDF document.
+        img_paths (list[str]): A list of paths to the associated images.
+
+    Returns:
+        str: A JSON string containing the summarised document and image information.
+    """
+
     vertexai.init()
     model = vertexai.generative_models.GenerativeModel(
         model_name="gemini-1.5-flash",
