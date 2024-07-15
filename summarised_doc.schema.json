@@ -6,6 +6,24 @@
       "type": "string",
       "description": "The content of the document."
     },
+    "author": {
+      "type": "string",
+      "description": "The author of this document"
+    },
+    "revision": {
+      "type": "string",
+      "description": "The revision of this document"
+    },
+    "createdOn": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date of this document created"
+    },
+    "lastModifiedOn": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date of this document last modified"
+    },
     "images": {
       "type": "array",
       "description": "List of images associated with the document.",
