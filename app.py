@@ -3,6 +3,7 @@ import json
 import logging
 from os import getenv
 import re
+import sys
 import google.cloud.logging
 from flask import Flask, request, jsonify
 from google.cloud import storage
@@ -13,6 +14,22 @@ from json_util import check_json_format
 from uuid import uuid4 as uuid
 
 
+Log_Format = "%(levelname)s %(asctime)s - %(message)s"
+
+if __name__ == "__main__":
+    import dotenv
+
+    dotenv.load_dotenv()
+    logging.basicConfig(
+        stream=sys.stdout,
+        filemode="w",
+        format=Log_Format,
+        level=logging.INFO,
+    )
+else:
+    client = google.cloud.logging.Client()
+    client.setup_logging()
+
 OUTPUT_BUCKET_NAME = getenv("OUTPUT_BUCKET_NAME")
 
 if OUTPUT_BUCKET_NAME is None:
@@ -20,8 +37,8 @@ if OUTPUT_BUCKET_NAME is None:
 
 app = Flask(__name__)
 app.json.ensure_ascii = False
-client = google.cloud.logging.Client()
-client.setup_logging()
+
+logger = logging.getLogger(__name__)
 
 
 @app.route("/", methods=["POST"])
@@ -60,6 +77,7 @@ def main():
         jsonl_text = jsonl_file.download_as_text()
 
     if file_hash in jsonl_text:
+        logger.info("File %s already processed.", file_name)
         return jsonify({"message": "File already processed"}), 200
 
     image_paths = download_and_extract_images(
@@ -75,7 +93,7 @@ def main():
     json_data = re.sub("```", "", json_data)
 
     if not check_json_format(json_data):
-        logging.warn("LLM generated invalid JSON format.\n%s", json_data)
+        logger.warn("LLM generated invalid JSON format.\n%s", json_data)
         return jsonify({"error": "LLM generated invalid JSON format"}), 500
 
     struct_data = json.loads(json_data)
